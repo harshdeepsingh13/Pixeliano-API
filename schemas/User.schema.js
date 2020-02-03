@@ -18,7 +18,7 @@ module.exports = Mongoose.Schema(
     },
   },
   {
-    timeStamps: {
+    timestamps: {
       createdAt: 'createdAt',
       updatedAt: 'updatedAt',
     },
