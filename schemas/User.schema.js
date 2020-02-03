@@ -17,4 +17,10 @@ module.exports = Mongoose.Schema(
       required: true,
     },
   },
+  {
+    timeStamps: {
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    },
+  },
 );
