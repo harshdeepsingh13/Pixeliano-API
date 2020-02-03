@@ -28,7 +28,7 @@ exports.registerController = async (req, res, next) => {
     );
     res.status(200).json({
       status: 200,
-      message: 'User registered successfully',
+      message: `${errorMessages[200]}`,
     });
     logger.info(`[ user.controller.js ] User register successfully with email as ${email}`);
   } catch (e) {
