@@ -17,4 +17,7 @@ module.exports = {
       new winston.transports.File({filename: 'dev_api.log'}),
     ],
   }),
+  mongodbConnectionURL: process.env.MODE === 'dev' ?
+    'mongodb://localhost:27017/rss-gen' :
+    '',
 };
