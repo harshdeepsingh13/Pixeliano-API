@@ -7,3 +7,13 @@ exports.registerNewUser = async user => {
   const newUser = new User({...user});
   return newUser.save();
 };
+
+exports.verifyEmail = email =>
+  User.findOne(
+    {
+      email,
+    },
+    {
+      email: 1,
+    },
+  );
