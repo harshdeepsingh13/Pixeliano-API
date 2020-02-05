@@ -20,7 +20,7 @@ module.exports = {
   mongodbConnectionURL: process.env.MODE === 'dev' ?
     'mongodb://localhost:27017/rss-gen' :
     '',
-  errorMessages: {
+  responseMessages: {
     '400': "Bad Request",
     '200': "Success"
   }
