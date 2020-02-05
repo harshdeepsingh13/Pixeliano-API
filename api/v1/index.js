@@ -1,5 +1,5 @@
 const express = require('express');
-const user = require('./User')
+const user = require('./User');
 
 module.exports = v1Routes => {
   const app = express.Router();
