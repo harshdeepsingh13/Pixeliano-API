@@ -18,7 +18,7 @@ exports.registerController = async (req, res, next) => {
       status: 400,
       message: responseMessages[400],
     };
-    next(new Error());
+    return next(new Error());
   }
   try {
     password = await encryptPassword(password);
@@ -47,7 +47,7 @@ exports.verifyEmailController = async (req, res, next) => {
         status: 400,
         message: responseMessages[400],
       };
-      next(new Error());
+     return next(new Error());
     }
     const userWithEmail = await verifyEmail(email);
     res.status(200).json(
