@@ -8,12 +8,23 @@ exports.registerNewUser = async user => {
   return newUser.save();
 };
 
-exports.verifyEmail = email =>
+/*exports.verifyEmail = email =>
   User.findOne(
     {
       email,
     },
     {
       email: 1,
+    },
+  );*/
+
+exports.getUserDetails = (email, projection) =>
+  User.findOne(
+    {
+      email,
+    },
+    {
+      _id: 0,
+      ...projection,
     },
   );
