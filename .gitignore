@@ -715,4 +715,7 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
+keys/
+.vscode/
+
 # End of https://www.gitignore.io/api/node,webstorm,jetbrains,visualstudio,jetbrains+all,jetbrains+iml,visualstudiocode
