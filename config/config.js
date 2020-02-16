@@ -21,7 +21,10 @@ module.exports = {
     'mongodb://localhost:27017/rss-gen' :
     '',
   responseMessages: {
-    '400': "Bad Request",
-    '200': "Success"
-  }
+    '400': 'Bad Request',
+    '200': 'Success',
+    '404': 'Not Found',
+    '401': 'Unauthorized',
+    '409': 'Conflict',
+  },
 };
