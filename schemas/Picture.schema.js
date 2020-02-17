@@ -3,22 +3,22 @@ const Mongoose = require('mongoose');
 module.exports = Mongoose.Schema(
   {
     pictureId: {
-      types: Mongoose.Types.ObjectId,
+      type: Mongoose.Types.ObjectId,
       required: true,
       index: true,
       unique: true,
     },
     fullUrl: {
-      types: String,
+      type: String,
       required: true,
     },
     providerName: {
-      types: String,
+      type: String,
       required: true,
       default: 'cloudinary',
     },
     shortName: {
-      types: String,
+      type: String,
       required: true,
     },
   },
