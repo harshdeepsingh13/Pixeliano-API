@@ -8,7 +8,7 @@ module.exports = Mongoose.Schema(
       index: true,
       unique: true,
     },
-    full_url: {
+    fullUrl: {
       types: String,
       required: true,
     },
@@ -17,7 +17,7 @@ module.exports = Mongoose.Schema(
       required: true,
       default: 'cloudinary',
     },
-    cloudinaryName: {
+    shortName: {
       types: String,
       required: true,
     },
