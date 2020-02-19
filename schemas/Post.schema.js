@@ -16,7 +16,7 @@ module.exports = Mongoose.Schema(
       required: true,
     },
     tags: {
-      type: Mongoose.Types.Array,
+      type: [Mongoose.Types.ObjectId],
       required: true,
     },
   },
