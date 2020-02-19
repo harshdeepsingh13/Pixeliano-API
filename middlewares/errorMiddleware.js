@@ -1,7 +1,7 @@
 const {logger} = require('../config/config.js');
 
 module.exports = (err, req, res, next) => {
-  logger.error(`[ errorMiddleware.js ] Error occurred --- ${err}`);
+  logger.error(`[ errorMiddleware.js ] Error occurred --- ${err}, request id - ${req.request.callId}`);
   if (req.error) {
     const {
       status,
