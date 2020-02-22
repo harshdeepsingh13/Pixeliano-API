@@ -2,6 +2,12 @@ const Mongoose = require('mongoose');
 
 module.exports = Mongoose.Schema(
   {
+    postId: {
+      type: String,
+      required: true,
+      index: true,
+      default: new Mongoose.Types.ObjectId(),
+    },
     userEmail: {
       type: String,
       required: true,
