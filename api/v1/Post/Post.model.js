@@ -18,3 +18,20 @@ exports.saveNewPost = postInfo => {
   const newPost = new Post({...postInfo});
   return newPost.save();
 };
+
+exports.getPosts = async (userEmail) => {
+  const [{totalCount}] = await Post.aggregate()
+    .match({userEmail})
+    .count('totalCount');
+  const posts = await Post.aggregate()
+    .match({userEmail/*: 'hdsingh2015@gmail.com'*/})
+    .lookup({from: 'pictures', localField: 'pictureId', foreignField: 'pictureId', as: 'picture'})
+    .unwind('picture')
+    .lookup({from: 'tags', localField: 'tags', foreignField: 'tagId', as: 'tags'})
+    .project({_id: 0, pictureId: 0, 'picture._id': 0, 'tags._id': 0, userEmail: 0});
+
+  return ({
+    total: totalCount,
+    posts,
+  });
+};
