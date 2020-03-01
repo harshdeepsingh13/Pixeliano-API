@@ -35,3 +35,10 @@ exports.getPosts = async (userEmail) => {
     posts,
   });
 };
+
+exports.getTags = (searchQuery='') =>
+  Tag.find(
+    {
+      tag: new RegExp(`${searchQuery}.*`),
+    }
+  );
