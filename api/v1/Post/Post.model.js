@@ -39,6 +39,9 @@ exports.getPosts = async (userEmail) => {
 exports.getTags = (searchQuery='') =>
   Tag.find(
     {
-      tag: new RegExp(`${searchQuery}.*`),
+      tag: new RegExp(`${searchQuery.toLowerCase()}.*`),
+    },
+    {
+      _id: 0
     }
   );
