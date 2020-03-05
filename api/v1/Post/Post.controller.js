@@ -25,12 +25,14 @@ exports.newPostController = async (req, res, next) => {
       req.error = {
         status: 400,
         message: responseMessages[400],
+        logger: 'picture not defined'
       };
       return next(new Error());
-    } else if (!picture.fullUrl || !picture.providerName || !picture.shortName) {
+    } else if (!picture.fullUrl || !picture.shortName) {
       req.error = {
         status: 400,
         message: responseMessages[400],
+        logger: 'fullUrl or providerName or shortName not defined in picture object'
       };
       return next(new Error());
     }
@@ -42,7 +44,7 @@ exports.newPostController = async (req, res, next) => {
 
     tags = await Promise.all(
       tags.map(async tag => {
-        if (tag.isNew) {
+        if (tag.isNew || !tag.tagId) {
           let tagDetails;
           tagDetails = await saveNewTag({tag: tag.tag});
           return tagDetails.tagId;
@@ -85,7 +87,6 @@ exports.getTagsController = async (req, res, next) => {
     const {
       q: searchQuery,
     } = req.query;
-    console.log('se', searchQuery);
     const tags = await getTags(searchQuery);
     res.status(200).json({
       status: 200,
