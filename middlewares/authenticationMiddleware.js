@@ -12,49 +12,49 @@ module.exports = async (req, res, next) => {
           status: 401,
           message: 'Invalid token.',
         };
-        next(new Error());
+        return next(new Error());
       }
       req.user = user;
-      next();
+      return next();
     } catch (e) {
       if (e.name === 'JsonWebTokenError') {
         req.error = {
           status: 401,
           message: responseMessages[401],
         };
-        next(new Error());
+        return next(new Error());
       }
-      next(e);
+      return next(e);
     }
   } else {
-    if (!req.headers.authentication) {
+    if (!req.headers.authorization) {
       req.error = {
         status: 401,
         message: responseMessages[401],
       };
-      next(new Error());
+      return next(new Error());
     }
     try {
-      const {email} = getPayload(req.headers.authentication.split('Bearer ')[0]);
+      const {email} = getPayload(req.headers.authorization.split(/\s/)[1]);
       const user = await getUserDetails(email);
       if (!user) {
         req.error = {
           status: 401,
           message: responseMessages[401],
         };
-        next(new Error());
+        return next(new Error());
       }
       req.user = user;
-      next();
+      return next();
     } catch (e) {
       if (e.name === 'JsonWebTokenError') {
         req.error = {
           status: 401,
           message: responseMessages[401],
         };
-        next(new Error());
+        return next(new Error());
       }
-      next(e);
+      return next(e);
     }
   }
 };
