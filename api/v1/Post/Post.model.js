@@ -36,12 +36,12 @@ exports.getPosts = async (userEmail) => {
   });
 };
 
-exports.getTags = (searchQuery='') =>
+exports.getTags = (searchQuery = '') =>
   Tag.find(
     {
       tag: new RegExp(`${searchQuery.toLowerCase()}.*`),
     },
     {
-      _id: 0
-    }
-  );
+      _id: 0,
+    },
+  ).sort({tag: 1});
