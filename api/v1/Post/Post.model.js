@@ -15,7 +15,7 @@ exports.saveNewTag = tagInfo => {
 };
 
 exports.saveNewPost = postInfo => {
-  const newPost = new Post({...postInfo});
+  const newPost = new Post({...postInfo, postId: new mongoose.Types.ObjectId()});
   return newPost.save();
 };
 
@@ -28,7 +28,8 @@ exports.getPosts = async (userEmail) => {
     .lookup({from: 'pictures', localField: 'pictureId', foreignField: 'pictureId', as: 'picture'})
     .unwind('picture')
     .lookup({from: 'tags', localField: 'tags', foreignField: 'tagId', as: 'tags'})
-    .project({_id: 0, pictureId: 0, 'picture._id': 0, 'tags._id': 0, userEmail: 0});
+    .project({_id: 0, pictureId: 0, 'picture._id': 0, 'tags._id': 0, userEmail: 0})
+    .sort({updatedAt: -1});
 
   return ({
     total: totalCount,

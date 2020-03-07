@@ -3,9 +3,10 @@ const Mongoose = require('mongoose');
 module.exports = Mongoose.Schema(
   {
     postId: {
-      type: String,
+      type: Mongoose.Types.ObjectId,
       required: true,
       index: true,
+      unique: true,
       default: new Mongoose.Types.ObjectId(),
     },
     userEmail: {
