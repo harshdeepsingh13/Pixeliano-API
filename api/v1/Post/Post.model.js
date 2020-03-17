@@ -19,6 +19,16 @@ exports.saveNewPost = postInfo => {
   return newPost.save();
 };
 
+exports.updatePost = (postInfo, postId) =>
+  Post.findOneAndUpdate(
+    {
+      postId,
+    },
+    {
+      ...postInfo,
+    },
+  );
+
 exports.getPosts = async (userEmail) => {
   const [{totalCount}] = await Post.aggregate()
     .match({userEmail})
@@ -40,7 +50,7 @@ exports.getPosts = async (userEmail) => {
 exports.getTags = (searchQuery = '') =>
   Tag.find(
     {
-      tag: new RegExp(`${searchQuery.toLowerCase()}.*`),
+      tag: new RegExp(`^${searchQuery.toLowerCase()}`),
     },
     {
       _id: 0,
