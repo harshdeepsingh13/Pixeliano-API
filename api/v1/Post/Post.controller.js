@@ -5,6 +5,7 @@ const {
   saveNewPost,
   saveNewTag,
   getTags,
+  updatePost,
 } = require('./Post.model');
 const {logger} = require('../../../config/config');
 
@@ -121,5 +122,80 @@ exports.saveNewTagsController = async (req, res, next) => {
   } catch (e) {
     next(e);
   }
+};
 
+exports.updateRecordController = async (req, res, next) => {
+  try {
+    const {postId, picture, caption} = req.body;
+    console.log('dasasd', picture);
+    let {tags} = req.body;
+
+    let updates = {};
+
+    if (!postId) {
+      req.error = {
+        status: 400,
+        message: responseMessages[400],
+        logger: 'postId not present',
+      };
+      return next(new Error());
+    }
+    if (!picture && !caption && !tags) {
+      req.error = {
+        status: 400,
+        message: responseMessages[400],
+        logger: 'Picture, caption and tags not present',
+      };
+      return next(new Error());
+    }
+    if (picture && !((picture.pictureId) || (picture.shortName && picture.fullUrl))) {
+      req.error = {
+        status: 400,
+        message: responseMessages[400],
+        logger: 'Either pictureID or fullUrl and shortName should be present',
+      };
+      return next(new Error());
+    }
+    if (picture && picture.pictureId) {
+      updates.pictureId = picture.pictureId;
+    }
+    if (picture && (picture.fullUrl && picture.shortName)) {
+      const {pictureId} = await saveNewPicture({
+        fullUrl: picture.fullUrl,
+        providerName: picture.providerName,
+        shortName: picture.shortName,
+      });
+      updates.pictureId = pictureId;
+    }
+    if (tags) {
+      updates.tags = await Promise.all(
+        tags.map(async tag => {
+          if (tag.isNew || !tag.tagId) {
+            let tagDetails;
+            tagDetails = await saveNewTag({tag: tag.tag});
+            return tagDetails.tagId;
+          } else {
+            return tag.tagId;
+          }
+        }),
+      );
+    }
+    if (caption) {
+      updates.caption = caption;
+    }
+    /*const update = {
+      tags,
+      caption,
+    };
+    if (picture && picture.pictureId) {
+      update.pictureId = picture.pictureId;
+    }*/
+    await updatePost(updates, postId);
+    res.status(200).json({
+      status: 200,
+      message: responseMessages[200],
+    });
+  } catch (e) {
+    next(e);
+  }
 };
