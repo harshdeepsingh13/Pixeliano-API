@@ -3,12 +3,15 @@ const {
   newPostController,
   getPostsController,
   getTagsController,
-  saveNewTagsController
+  saveNewTagsController,
+  updateRecordController,
 } = require('./Post.controller');
 
 const app = express.Router();
 
 app.post('/newRecord', newPostController);
+
+app.put('/updateRecord', updateRecordController);
 
 app.get('/getAllPosts', getPostsController);
 
