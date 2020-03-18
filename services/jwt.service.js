@@ -3,19 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const cryptojs = require('crypto-js');
 
-/*const publicKey = fs.readFileSync(
-	path.join(__dirname, './keys/public.key'),
-	{
-		encoding: 'utf-8'
-	}
-);
-const privateKey = fs.readFileSync(
-	path.join(__dirname, './keys/private.key'),
-	{
-		encoding: 'utf-8'
-	}
-);*/
-
 const jwtConfig = {
 	issuer: 'Harshdeep Singh',
 	subject: 'harshdeepsingh13@gmail.com',
