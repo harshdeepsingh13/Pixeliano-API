@@ -5,6 +5,12 @@ const myFormat = printf(({level, message, label, timestamp}) => {
   return `${level} [${timestamp}] ${message}`;
 });
 
+let mongodbConnectionURL = 'mongodb://localhost:27017/rss-gen';
+
+if (process.env.MODE === 'herokudev') {
+  mongodbConnectionURL = process.env.MONGODB_URI;
+}
+
 module.exports = {
   logger: winston.createLogger({
     format: combine(
@@ -17,9 +23,7 @@ module.exports = {
       new winston.transports.File({filename: 'dev_api.log'}),
     ],
   }),
-  mongodbConnectionURL: process.env.MODE === 'dev' ?
-    'mongodb://localhost:27017/rss-gen' :
-    '',
+  mongodbConnectionURL,
   responseMessages: {
     '400': 'Bad Request',
     '200': 'Success',
