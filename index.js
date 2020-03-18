@@ -10,6 +10,9 @@ const requestCallMiddleware = require('./middlewares/requestCallMiddleware');
 const app = express();
 const port = process.env.PORT || 8080;
 
+//dotenv
+require('dotenv').config();
+
 //middlewares
 app.use(require('morgan')('dev'));
 app.use(requestCallMiddleware);
