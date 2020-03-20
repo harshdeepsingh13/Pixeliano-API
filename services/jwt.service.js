@@ -27,6 +27,16 @@ const verifyOptions = {
 	algorithm: [jwtConfig.algorithm]
 };
 
-exports.getToken = payload => cryptojs.AES.encrypt(jwt.sign(payload, decodeURIComponent(process.env.PRIVATE_KEY), signOptions), decodeURIComponent(process.env.PRIVATE_KEY)).toString();
+const privateKey = fs.readFileSync(
+	path.join(__dirname, './keys/private.key'),
+	{
+		encoding: 'utf-8'
+	}
+);
 
-exports.getPayload = token => jwt.verify(cryptojs.AES.decrypt(token.toString(), decodeURIComponent(process.env.PRIVATE_KEY)).toString(cryptojs.enc.Utf8), decodeURIComponent(process.env.PUBLIC_KEY), verifyOptions);
+exports.getToken = payload => {
+	console.log('getToken', btoa(process.env.PRIVATE_KEY), privateKey);
+	return cryptojs.AES.encrypt(jwt.sign(payload, btoa(process.env.PRIVATE_KEY), signOptions), btoa(process.env.PRIVATE_KEY)).toString();
+};
+
+exports.getPayload = token => jwt.verify(cryptojs.AES.decrypt(token.toString(), btoa(process.env.PRIVATE_KEY)).toString(cryptojs.enc.Utf8), btoa(process.env.PUBLIC_KEY), verifyOptions);
