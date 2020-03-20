@@ -30,7 +30,7 @@ exports.updatePost = (postInfo, postId) =>
   );
 
 exports.getPosts = async (userEmail) => {
-  const [{totalCount}] = await Post.aggregate()
+  const totalCount = await Post.aggregate()
     .match({userEmail})
     .count('totalCount');
   const posts = await Post.aggregate()
@@ -42,7 +42,7 @@ exports.getPosts = async (userEmail) => {
     .sort({updatedAt: -1});
 
   return ({
-    total: totalCount,
+    total: totalCount.length ? totalCount[0].totalCount : totalCount.length,
     posts,
   });
 };
