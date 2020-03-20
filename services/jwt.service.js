@@ -29,8 +29,8 @@ const verifyOptions = {
 
 
 exports.getToken = payload => {
-	console.log('getToken', btoa(process.env.PRIVATE_KEY), privateKey);
-	return cryptojs.AES.encrypt(jwt.sign(payload, btoa(process.env.PRIVATE_KEY), signOptions), btoa(process.env.PRIVATE_KEY)).toString();
+	console.log('getToken', Buffer.from(process.env.PRIVATE_KEY).toString('base64'));
+	return cryptojs.AES.encrypt(jwt.sign(payload, Buffer.from(process.env.PRIVATE_KEY).toString('base64'), signOptions), Buffer.from(process.env.PRIVATE_KEY).toString('base64')).toString();
 };
 
-exports.getPayload = token => jwt.verify(cryptojs.AES.decrypt(token.toString(), btoa(process.env.PRIVATE_KEY)).toString(cryptojs.enc.Utf8), btoa(process.env.PUBLIC_KEY), verifyOptions);
+exports.getPayload = token => jwt.verify(cryptojs.AES.decrypt(token.toString(), Buffer.from(process.env.PRIVATE_KEY).toString('base64')).toString(cryptojs.enc.Utf8), Buffer.from(process.env.PUBLIC_KEY).toString('base64'), verifyOptions);
