@@ -95,6 +95,7 @@ exports.signInUserController = async (req, res, next) => {
       return next(new Error());
     }
     if (await comparePassword(userDetails.password, password)) {
+      logger.error(`in compare password`, getToken({email: userDetails.email}));
       res.status(200).json(
         {
           status: 200,
