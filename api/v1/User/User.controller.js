@@ -114,6 +114,7 @@ exports.signInUserController = async (req, res, next) => {
       return next(new Error());
     }
   } catch (e) {
+    logger.error(`signIn error - ${e}`);
     next(e);
   }
 };
