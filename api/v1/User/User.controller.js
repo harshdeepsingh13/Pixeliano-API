@@ -95,6 +95,7 @@ exports.signInUserController = async (req, res, next) => {
       return next(new Error());
     }
     if (await comparePassword(userDetails.password, password)) {
+      logger.error(`in compare password ${getToken({hello: 'gekki'})}`);
       res.status(200).json(
         {
           status: 200,
@@ -102,7 +103,7 @@ exports.signInUserController = async (req, res, next) => {
           data: {
             name: userDetails.name,
             email: userDetails.email,
-            token: getToken({email: userDetails.email}),
+            // token: getToken({email: userDetails.email}),
           },
         },
       );
@@ -114,6 +115,7 @@ exports.signInUserController = async (req, res, next) => {
       return next(new Error());
     }
   } catch (e) {
+    logger.error(`signIn error - ${e}`);
     next(e);
   }
 };
