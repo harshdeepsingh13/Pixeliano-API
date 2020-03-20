@@ -27,12 +27,6 @@ const verifyOptions = {
 	algorithm: [jwtConfig.algorithm]
 };
 
-const privateKey = fs.readFileSync(
-	path.join(__dirname, './keys/private.key'),
-	{
-		encoding: 'utf-8'
-	}
-);
 
 exports.getToken = payload => {
 	console.log('getToken', btoa(process.env.PRIVATE_KEY), privateKey);
