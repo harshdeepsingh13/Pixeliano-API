@@ -95,7 +95,7 @@ exports.signInUserController = async (req, res, next) => {
       return next(new Error());
     }
     if (await comparePassword(userDetails.password, password)) {
-      logger.error(`in compare password`, Object.keys(process.env));
+      logger.error(`in compare password ${Object.keys(process.env)} ${process.env.PRIVATE_KEY}`);
       res.status(200).json(
         {
           status: 200,
