@@ -27,6 +27,6 @@ const verifyOptions = {
 	algorithm: [jwtConfig.algorithm]
 };
 
-exports.getToken = payload => cryptojs.AES.encrypt(jwt.sign(payload, process.env.PRIVATE_KEY, signOptions), process.env.PRIVATE_KEY).toString();
+exports.getToken = payload => cryptojs.AES.encrypt(jwt.sign(payload, decodeURIComponent(process.env.PRIVATE_KEY), signOptions), decodeURIComponent(process.env.PRIVATE_KEY)).toString();
 
-exports.getPayload = token => jwt.verify(cryptojs.AES.decrypt(token.toString(), process.env.PRIVATE_KEY).toString(cryptojs.enc.Utf8), process.env.PUBLIC_KEY, verifyOptions);
+exports.getPayload = token => jwt.verify(cryptojs.AES.decrypt(token.toString(), decodeURIComponent(process.env.PRIVATE_KEY)).toString(cryptojs.enc.Utf8), decodeURIComponent(process.env.PUBLIC_KEY), verifyOptions);
