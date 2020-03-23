@@ -2,6 +2,9 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 
+//dotenv
+require('dotenv').config();
+
 const {logger} = require('./config/config');
 const v1Routes = require('./api/v1');
 const errorMiddleware = require('./middlewares/errorMiddleware');
@@ -9,9 +12,6 @@ const requestCallMiddleware = require('./middlewares/requestCallMiddleware');
 
 const app = express();
 const port = process.env.PORT || 8080;
-
-//dotenv
-require('dotenv').config();
 
 //middlewares
 app.use(require('morgan')('dev'));

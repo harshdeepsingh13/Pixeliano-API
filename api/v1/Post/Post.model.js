@@ -50,7 +50,7 @@ exports.getPosts = async (userEmail) => {
 exports.getTags = (searchQuery = '') =>
   Tag.find(
     {
-      tag: new RegExp(`^${searchQuery.toLowerCase()}`),
+      tag: new RegExp(`^${searchQuery}`, 'i'),
     },
     {
       _id: 0,
