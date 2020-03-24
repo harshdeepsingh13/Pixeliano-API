@@ -26,6 +26,10 @@ module.exports = Mongoose.Schema(
       type: [Mongoose.Types.ObjectId],
       required: true,
     },
+    rss: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: {
