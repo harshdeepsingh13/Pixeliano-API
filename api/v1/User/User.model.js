@@ -18,13 +18,21 @@ exports.registerNewUser = async user => {
     },
   );*/
 
-exports.getUserDetails = (email, projection) =>
-  User.findOne(
+exports.getUserDetails = (match, projection, matchField = 'email') => {
+  const matchObject = {};
+  if (matchField === 'email') {
+    matchObject.email = match;
+  }
+  if (matchField === 'userId') {
+    matchObject.userId = new mongoose.Types.ObjectId(match);
+  }
+  return User.findOne(
     {
-      email,
+      ...matchObject,
     },
     {
       _id: 0,
       ...projection,
     },
   );
+};
