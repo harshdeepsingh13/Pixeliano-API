@@ -29,16 +29,24 @@ exports.updatePost = (postInfo, postId) =>
     },
   );
 
-exports.getPosts = async (userEmail) => {
+exports.getPosts = async (match, matchField = 'userEmail') => {
+  const postMatchObject = {};
+
+  if (matchField === 'userEmail') {
+    postMatchObject.userEmail = match;
+  }
+  if (matchField === 'postId') {
+    postMatchObject.postId = new mongoose.Types.ObjectId(match);
+  }
   const totalCount = await Post.aggregate()
-    .match({userEmail})
+    .match({...postMatchObject})
     .count('totalCount');
   const posts = await Post.aggregate()
-    .match({userEmail/*: 'hdsingh2015@gmail.com'*/})
+    .match({...postMatchObject})
     .lookup({from: 'pictures', localField: 'pictureId', foreignField: 'pictureId', as: 'picture'})
     .unwind('picture')
     .lookup({from: 'tags', localField: 'tags', foreignField: 'tagId', as: 'tags'})
-    .project({_id: 0, pictureId: 0, 'picture._id': 0, 'tags._id': 0, userEmail: 0, 'picture.fullUrl': 0})
+    .project({_id: 0, pictureId: 0, 'picture._id': 0, 'tags._id': 0, userEmail: 0})
     .sort({updatedAt: -1});
 
   return ({
@@ -56,3 +64,18 @@ exports.getTags = (searchQuery = '') =>
       _id: 0,
     },
   ).sort({tag: 1});
+
+
+exports.setPostOnRss = (postId, rss = false) =>
+  Post.findOneAndUpdate(
+    {
+      postId,
+    },
+    {
+      rss,
+    },
+    {
+      new: true,
+      useFindAndModify: false
+    },
+  );
