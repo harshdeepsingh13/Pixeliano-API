@@ -27,6 +27,10 @@ exports.updatePost = (postInfo, postId) =>
     {
       ...postInfo,
     },
+    {
+      new: true,
+      useFindAndModify: false
+    }
   );
 
 exports.getPosts = async (match, matchField = 'userEmail') => {
