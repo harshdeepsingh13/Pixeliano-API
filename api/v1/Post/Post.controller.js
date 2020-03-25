@@ -8,6 +8,8 @@ const {
   updatePost,
 } = require('./Post.model');
 const {logger} = require('../../../config/config');
+const childProcess = require('child_process');
+const path = require('path');
 
 exports.newPostController = async (req, res, next) => {
   try {
@@ -26,14 +28,14 @@ exports.newPostController = async (req, res, next) => {
       req.error = {
         status: 400,
         message: responseMessages[400],
-        logger: 'picture not defined'
+        logger: 'picture not defined',
       };
       return next(new Error());
     } else if (!picture.fullUrl || !picture.shortName) {
       req.error = {
         status: 400,
         message: responseMessages[400],
-        logger: 'fullUrl or providerName or shortName not defined in picture object'
+        logger: 'fullUrl or providerName or shortName not defined in picture object',
       };
       return next(new Error());
     }
@@ -54,11 +56,21 @@ exports.newPostController = async (req, res, next) => {
         }
       }),
     );
-    await saveNewPost({
+    const newPost = await saveNewPost({
       caption,
       tags,
       pictureId,
       userEmail,
+    });
+    childProcess.fork(
+      path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
+      [
+        req.user.userId,
+        newPost.postId,
+      ]);
+    res.status(200).json({
+      status: 200,
+      message: responseMessages[200],
     });
     logger.info(`[Post.controller.js] New Post created, request Id - ${req.request.callId}`);
   } catch (e) {
@@ -127,7 +139,6 @@ exports.saveNewTagsController = async (req, res, next) => {
 exports.updateRecordController = async (req, res, next) => {
   try {
     const {postId, picture, caption} = req.body;
-    console.log('dasasd', picture);
     let {tags} = req.body;
 
     let updates = {};
@@ -191,6 +202,12 @@ exports.updateRecordController = async (req, res, next) => {
       update.pictureId = picture.pictureId;
     }*/
     await updatePost(updates, postId);
+    childProcess.fork(
+      path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
+      [
+        req.user.userId,
+        postId,
+      ]);
     res.status(200).json({
       status: 200,
       message: responseMessages[200],
