@@ -6,6 +6,7 @@ const {
   saveNewTag,
   getTags,
   updatePost,
+  deletePost,
 } = require('./Post.model');
 const {logger} = require('../../../config/config');
 const childProcess = require('child_process');
@@ -208,6 +209,28 @@ exports.updateRecordController = async (req, res, next) => {
         req.user.userId,
         postId,
       ]);
+    res.status(200).json({
+      status: 200,
+      message: responseMessages[200],
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.deleteRecordController = async (req, res, next) => {
+  try {
+    const {postId} = req.params;
+    const {email} = req.user;
+    const deletedPost = await deletePost(postId, email);
+    if (!deletedPost) {
+      req.error = {
+        status: 404,
+        message: responseMessages[404],
+        logger: 'no post with the post id of the given user.',
+      };
+      return next(new Error());
+    }
     res.status(200).json({
       status: 200,
       message: responseMessages[200],
