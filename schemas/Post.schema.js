@@ -28,8 +28,12 @@ module.exports = Mongoose.Schema(
     },
     rss: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    visible: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: {

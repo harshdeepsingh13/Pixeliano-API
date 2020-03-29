@@ -23,18 +23,21 @@ exports.updatePost = (postInfo, postId) =>
   Post.findOneAndUpdate(
     {
       postId,
+      visible: true,
     },
     {
       ...postInfo,
     },
     {
       new: true,
-      useFindAndModify: false
-    }
+      useFindAndModify: false,
+    },
   );
 
 exports.getPosts = async (match, matchField = 'userEmail') => {
-  const postMatchObject = {};
+  const postMatchObject = {
+    visible: true,
+  };
 
   if (matchField === 'userEmail') {
     postMatchObject.userEmail = match;
@@ -74,12 +77,13 @@ exports.setPostOnRss = (postId, rss = false) =>
   Post.findOneAndUpdate(
     {
       postId,
+      visible: true,
     },
     {
       rss,
     },
     {
       new: true,
-      useFindAndModify: false
+      useFindAndModify: false,
     },
   );
