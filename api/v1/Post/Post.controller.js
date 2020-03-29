@@ -221,7 +221,7 @@ exports.updateRecordController = async (req, res, next) => {
 exports.deleteRecordController = async (req, res, next) => {
   try {
     const {postId} = req.params;
-    const {email} = req.user;
+    const {email, userId} = req.user;
     const deletedPost = await deletePost(postId, email);
     if (!deletedPost) {
       req.error = {
@@ -235,6 +235,12 @@ exports.deleteRecordController = async (req, res, next) => {
       status: 200,
       message: responseMessages[200],
     });
+    childProcess.fork(
+      path.join(__dirname, '../../../services/deleteFromFeed.service.js'),
+      [
+        userId,
+        postId,
+      ]);
   } catch (e) {
     next(e);
   }
