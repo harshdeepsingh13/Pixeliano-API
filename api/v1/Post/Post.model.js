@@ -87,3 +87,19 @@ exports.setPostOnRss = (postId, rss = false) =>
       useFindAndModify: false,
     },
   );
+
+exports.deletePost = (postId, userEmail) =>
+  Post.findOneAndUpdate(
+    {
+      postId,
+      userEmail,
+      visible: true,
+    },
+    {
+      visible: false,
+    },
+    {
+      new: true,
+      useFindAndModify: false,
+    },
+  );
