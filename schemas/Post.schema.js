@@ -20,13 +20,18 @@ module.exports = Mongoose.Schema(
     },
     caption: {
       type: String,
-      required: true,
+      default: '',
+      // required: true,
     },
     tags: {
       type: [Mongoose.Types.ObjectId],
       required: true,
     },
     rss: {
+      type: Boolean,
+      default: false,
+    },
+    instagram: {
       type: Boolean,
       default: false,
     },
