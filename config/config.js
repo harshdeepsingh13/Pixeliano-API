@@ -7,7 +7,7 @@ const myFormat = printf(({level, message, label, timestamp}) => {
 
 let mongodbConnectionURL = 'mongodb://localhost:27017/rss-gen';
 
-if (process.env.MODE === 'herokudev') {
+if (process.env.MODE === 'herokudev' || process.env.MODE === 'prod') {
   mongodbConnectionURL = process.env.MONGODB_URI;
 }
 
