@@ -720,3 +720,4 @@ keys/
 
 # End of https://www.gitignore.io/api/node,webstorm,jetbrains,visualstudio,jetbrains+all,jetbrains+iml,visualstudiocode
 feeds/
+scripts/
