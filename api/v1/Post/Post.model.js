@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const {postsDeliveryLimit} = require('../../../config/config');
 
 const Picture = mongoose.model('Picture', require('../../../schemas/Picture.schema'));
 const Tag = mongoose.model('Tag', require('../../../schemas/Tag.schema'));
@@ -34,7 +35,7 @@ exports.updatePost = (postInfo, postId) =>
     },
   );
 
-exports.getPosts = async (match, matchField = 'userEmail') => {
+exports.getPosts = async (match, matchField = 'userEmail', offset = undefined) => {
   const postMatchObject = {
     visible: true,
   };
@@ -48,7 +49,7 @@ exports.getPosts = async (match, matchField = 'userEmail') => {
   const totalCount = await Post.aggregate()
     .match({...postMatchObject})
     .count('totalCount');
-  const posts = await Post.aggregate()
+  let postsAggregate = Post.aggregate()
     .match({...postMatchObject})
     .lookup({from: 'pictures', localField: 'pictureId', foreignField: 'pictureId', as: 'picture'})
     .unwind('picture')
@@ -56,16 +57,26 @@ exports.getPosts = async (match, matchField = 'userEmail') => {
     .project({_id: 0, pictureId: 0, 'picture._id': 0, 'tags._id': 0, userEmail: 0})
     .sort({updatedAt: -1});
 
+
+  if (offset !== undefined) {
+    console.log('limit', postsDeliveryLimit + offset, 'skip', offset);
+    postsAggregate
+      .limit(postsDeliveryLimit + offset)
+      .skip(offset);
+  }
+
+  const posts = await postsAggregate;
+
   return ({
     total: totalCount.length ? totalCount[0].totalCount : totalCount.length,
     posts,
   });
 };
 
-exports.getTags = (searchQuery = '') =>
+exports.getTags = (searchQuery = '', wantExactMatch = false) =>
   Tag.find(
     {
-      tag: new RegExp(`^${searchQuery}`, 'i'),
+      tag: new RegExp(wantExactMatch ? `^${searchQuery}$` : `^${searchQuery}`, 'i'),
     },
     {
       _id: 0,

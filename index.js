@@ -15,6 +15,7 @@ const port = process.env.PORT || 8080;
 
 //middlewares
 app.use(require('morgan')('dev'));
+app.use(require('cors')());
 app.use(requestCallMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));

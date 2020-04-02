@@ -1,6 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 const {responseMessages} = require('../../../config/config');
+const {getPosts} = require('../Post/Post.model.js');
+const crypto = require('crypto');
+
+const decrypt = (text) => {
+  let iv = Buffer.from(text.iv, 'hex');
+  let encryptedText = Buffer.from(text.encryptedData, 'hex');
+  let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(text.key), iv);
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+};
 
 exports.getListingsController = (req, res, next) => {
   try {
@@ -26,6 +37,24 @@ exports.getListingsController = (req, res, next) => {
       return next(new Error());
     }
     res.sendFile(path.join(__dirname, `../../../feeds/${userId}/feed.xml`));
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.getPostsController = async (req, res, next) => {
+  try {
+    const {offset} = req.params;
+    const email = decrypt(JSON.parse(process.env.SECRET_TEXT));
+    const response = await getPosts(email, 'userEmail', Number(offset));
+    res.status(200).json({
+      status: 200,
+      message: responseMessages[200],
+      data: {
+        totalPosts: response.total,
+        posts: response.posts,
+      },
+    });
   } catch (e) {
     next(e);
   }

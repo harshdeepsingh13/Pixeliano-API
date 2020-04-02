@@ -31,4 +31,5 @@ module.exports = {
     '401': 'Unauthorized',
     '409': 'Conflict',
   },
+  postsDeliveryLimit: 10
 };
