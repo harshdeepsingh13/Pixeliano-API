@@ -35,6 +35,21 @@ exports.updatePost = (postInfo, postId) =>
     },
   );
 
+exports.getPostsCount = (match, matchField = 'userEmail') => {
+  const postMatchObject = {
+    visible: true,
+  };
+  if (matchField === 'userEmail') {
+    postMatchObject.userEmail = match;
+  }
+  if (matchField === 'postId') {
+    postMatchObject.postId = new mongoose.Types.ObjectId(match);
+  }
+  return Post.aggregate()
+    .match({...postMatchObject})
+    .count('totalCount');
+};
+
 exports.getPosts = async (match, matchField = 'userEmail', offset = undefined) => {
   const postMatchObject = {
     visible: true,
@@ -46,9 +61,7 @@ exports.getPosts = async (match, matchField = 'userEmail', offset = undefined) =
   if (matchField === 'postId') {
     postMatchObject.postId = new mongoose.Types.ObjectId(match);
   }
-  const totalCount = await Post.aggregate()
-    .match({...postMatchObject})
-    .count('totalCount');
+  const totalCount = await exports.getPostsCount(match, matchField);
   let postsAggregate = Post.aggregate()
     .match({...postMatchObject})
     .lookup({from: 'pictures', localField: 'pictureId', foreignField: 'pictureId', as: 'picture'})
