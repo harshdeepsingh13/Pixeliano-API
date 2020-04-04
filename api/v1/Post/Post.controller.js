@@ -7,6 +7,7 @@ const {
   getTags,
   updatePost,
   deletePost,
+  getPostsCount,
 } = require('./Post.model');
 const {logger} = require('../../../config/config');
 const childProcess = require('child_process');
@@ -89,6 +90,22 @@ exports.getPostsController = async (req, res, next) => {
       data: {
         totalPosts: response.total,
         posts: response.posts,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.getPostCountController = async (req, res, next) => {
+  try {
+    const {email} = req.user;
+    const totalCount = await getPostsCount(email);
+    res.status(200).json({
+      status: 200,
+      message: responseMessages[200],
+      data: {
+        postCount: totalCount.length ? totalCount[0].totalCount : totalCount.length,
       },
     });
   } catch (e) {
