@@ -26,7 +26,7 @@ try {
     },
     channel: {
       title: 'Pixeliano.HD',
-      // link: 'https://verlocal.com/',
+      link: 'https://pixeliano.herokuapp.com',
       description: 'This feed is powered by Pixeliano RSS service',
       lastBuildDate: new Date().toUTCString(),
       /*'atom:link': {
