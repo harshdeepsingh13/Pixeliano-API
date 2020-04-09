@@ -1,12 +1,13 @@
 const {logger} = require('../config/config');
-const path = require('path');
-const fs = require('fs');
 const xml2js = require('xml2js');
 const {setPostOnRss, getPosts} = require('../api/v1/Post/Post.model');
 const {getUserDetails} = require('../api/v1/User/User.model');
 //mongodb connection
 require('../config/mongoose')();
 const mongoose = require('mongoose');
+const {updateXmlId} = require('../api/v1/User/User.model');
+const {saveXml} = require('../api/v1/User/User.model');
+const {uploadCloudinaryXml, deleteFromCloudinary, getCloudinaryXml} = require('./cloudinary.service');
 
 const [userId, postId] = process.argv.slice(2);
 
@@ -18,7 +19,6 @@ process.on('exit', () => {
 });
 
 try {
-  let fileJustCreated = false;
   const xmlBaseObject = {
     '$': {
       'xmlns:atom': 'http://www.w3.org/2005/Atom',
@@ -39,7 +39,7 @@ try {
     },
   };
 
-  if (!fs.existsSync(path.join(__dirname, '../feeds'))) {
+  /*if (!fs.existsSync(path.join(__dirname, '../feeds'))) {
     fs.mkdirSync(path.join(__dirname, '../feeds'));
     logger.info(`'feeds' directory created`);
   }
@@ -48,16 +48,16 @@ try {
     fs.openSync(path.join(__dirname, `../feeds/${userId}/feed.xml`), 'a');
     fileJustCreated = true;
     logger.info(`directory for user id - ${userId} and empty file 'feed.xml' is created`);
-  }
+  }*/
 
   (async () => {
     try {
-      const {email: userEmail} = await getUserDetails('harshdeepsingh13@gmail.com', {email: 1});
+      const [userDetails] = await getUserDetails(userId, {email: 1, xml: 1}, 'userId');
       const {posts} = await getPosts(postId, 'postId');
       // throw new Error('just like that');
       if (posts.length) {
         const post = posts[0];
-        if (fileJustCreated) {
+        if (!userDetails.xml.length) {
           xmlBaseObject.channel.lastBuildDate = new Date().toUTCString();
           xmlBaseObject.channel.item.push(
             {
@@ -75,15 +75,13 @@ try {
           );
           let builder = new xml2js.Builder({rootName: 'rss'});
           let xml = builder.buildObject(xmlBaseObject, 'rss');
-          let writeStream = fs.createWriteStream(path.join(__dirname, `../feeds/${userId}/feed.xml`), {flags: 'w'});
-          writeStream.write(xml);
-          writeStream.on('close', async () => {
-            await setPostOnRss(post.postId, true);
-            logger.info(`PostId ${post.postId} inserted in xml feed.`);
-          });
-          writeStream.close();
+          const {public_id, secure_url} = await uploadCloudinaryXml(xml, userId);
+          const {resourceId} = await saveXml({fullUrl: secure_url, shortName: public_id});
+          await updateXmlId(userId, resourceId, 'userId');
+          await setPostOnRss(post.postId, true);
+          logger.info(`PostId ${post.postId} inserted in XML with resourceId ${resourceId}`)
         } else {
-          const xmlFeed = fs.readFileSync(path.join(__dirname, `../feeds/${userId}/feed.xml`));
+          const xmlFeed = await getCloudinaryXml(userDetails.xml[0].shortName);
           const jsFeed = await xml2js.parseStringPromise(xmlFeed);
           const itemIndex = jsFeed.rss.channel[0].item.findIndex(item => post.postId + '' === item.guid[0]['_']);
           if (itemIndex === -1) {
@@ -119,13 +117,20 @@ try {
           }
           let builder = new xml2js.Builder({rootName: 'rss'});
           let xml = builder.buildObject(jsFeed.rss, 'rss');
-          let writeStream = fs.createWriteStream(path.join(__dirname, `../feeds/${userId}/feed.xml`), {flags: 'w'});
+          /*let writeStream = fs.createWriteStream(path.join(__dirname, `../feeds/${userId}/feed.xml`), {flags: 'w'});
           writeStream.write(xml);
           writeStream.on('close', async () => {
             await setPostOnRss(post.postId, true);
             logger.info(`PostId ${post.postId} inserted in xml feed.`);
           });
-          writeStream.end();
+          writeStream.end();*/
+          await deleteFromCloudinary(userDetails.xml[0].shortName, 'raw');
+          logger.info(`Existing XML with resourceId - ${userDetails.xml[0].resourceId} deleted.`);
+          const {public_id, secure_url} = await uploadCloudinaryXml(xml, userId);
+          const {resourceId} = await saveXml({fullUrl: secure_url, shortName: public_id});
+          await updateXmlId(userId, resourceId, 'userId');
+          await setPostOnRss(post.postId, true);
+          logger.info(`PostId ${post.postId} inserted in XML with resourceId ${resourceId}`)
         }
       }
     } catch (e) {
