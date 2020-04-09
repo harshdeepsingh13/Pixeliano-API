@@ -31,5 +31,12 @@ module.exports = {
     '401': 'Unauthorized',
     '409': 'Conflict',
   },
-  postsDeliveryLimit: 10
+  postsDeliveryLimit: 10,
+  cloudinary: {
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+    secureDeliveryURL: 'https://res.cloudinary.com/harshdeep-singh/raw/upload/',
+    apiURL: 'https://api.cloudinary.com/v1_1/harshdeep-singh/',
+    uploadPreset: `pixeliano_preset_${process.env.MODE}`
+  }
 };
