@@ -12,6 +12,7 @@ const {
 const {logger} = require('../../../config/config');
 const childProcess = require('child_process');
 const path = require('path');
+const {deleteFromCloudinary} = require('../../../services/cloudinary.service');
 
 exports.newPostController = async (req, res, next) => {
   try {
@@ -185,51 +186,65 @@ exports.updateRecordController = async (req, res, next) => {
       };
       return next(new Error());
     }
-    if (picture && picture.pictureId) {
-      updates.pictureId = picture.pictureId;
-    }
-    if (picture && (picture.fullUrl && picture.shortName)) {
-      const {pictureId} = await saveNewPicture({
-        fullUrl: picture.fullUrl,
-        providerName: picture.providerName,
-        shortName: picture.shortName,
+    const {posts} = await getPosts(postId, 'postId');
+    // throw new Error('just like that');
+    if (posts.length) {
+      const post = posts[0];
+      if (picture && picture.pictureId) {
+        updates.pictureId = picture.pictureId;
+      }
+      if (picture && (picture.fullUrl && picture.shortName)) {
+        await deleteFromCloudinary(post.picture.shortName);
+        logger.info(`Existing image with pictureId - ${post.picture.pictureId} is deleted`);
+        const {pictureId} = await saveNewPicture({
+          fullUrl: picture.fullUrl,
+          providerName: picture.providerName,
+          shortName: picture.shortName,
+        });
+        updates.pictureId = pictureId;
+      }
+      if (tags) {
+        updates.tags = await Promise.all(
+          tags.map(async tag => {
+            if (tag.isNew || !tag.tagId) {
+              let tagDetails;
+              tagDetails = await saveNewTag({tag: tag.tag});
+              return tagDetails.tagId;
+            } else {
+              return tag.tagId;
+            }
+          }),
+        );
+      }
+      if (caption) {
+        updates.caption = caption;
+      }
+      /*const update = {
+        tags,
+        caption,
+      };
+      if (picture && picture.pictureId) {
+        update.pictureId = picture.pictureId;
+      }*/
+      await updatePost(updates, postId);
+      childProcess.fork(
+        path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
+        [
+          req.user.userId,
+          postId,
+        ]);
+      res.status(200).json({
+        status: 200,
+        message: responseMessages[200],
       });
-      updates.pictureId = pictureId;
+    }else {
+      res.error = {
+        status: 404,
+        message: responseMessages[404],
+        logger: "No post with given postId."
+      }
+      return next (new Error());
     }
-    if (tags) {
-      updates.tags = await Promise.all(
-        tags.map(async tag => {
-          if (tag.isNew || !tag.tagId) {
-            let tagDetails;
-            tagDetails = await saveNewTag({tag: tag.tag});
-            return tagDetails.tagId;
-          } else {
-            return tag.tagId;
-          }
-        }),
-      );
-    }
-    if (caption) {
-      updates.caption = caption;
-    }
-    /*const update = {
-      tags,
-      caption,
-    };
-    if (picture && picture.pictureId) {
-      update.pictureId = picture.pictureId;
-    }*/
-    await updatePost(updates, postId);
-    childProcess.fork(
-      path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
-      [
-        req.user.userId,
-        postId,
-      ]);
-    res.status(200).json({
-      status: 200,
-      message: responseMessages[200],
-    });
   } catch (e) {
     next(e);
   }
