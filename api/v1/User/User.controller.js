@@ -86,7 +86,7 @@ exports.signInUserController = async (req, res, next) => {
       };
       return next(new Error());
     }
-    const userDetails = await getUserDetails(email, {email: 1, password: 1, name: 1});
+    const userDetails = await getUserDetails(email, {email: 1, password: 1, name: 1, userId: 1});
     if (!userDetails) {
       req.error = {
         status: 404,
@@ -103,6 +103,7 @@ exports.signInUserController = async (req, res, next) => {
             name: userDetails.name,
             email: userDetails.email,
             token: getToken({email: userDetails.email}),
+            userId: userDetails.userId,
           },
         },
       );
