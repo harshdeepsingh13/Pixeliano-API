@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const {responseMessages} = require('../../../config/config');
 const {getPosts} = require('../Post/Post.model.js');
+const {getUserDetails} = require('../User/User.model');
+const {getCloudinaryXml} = require('../../../services/cloudinary.service');
+
 const crypto = require('crypto');
 
 const decrypt = (text) => {
@@ -13,22 +16,23 @@ const decrypt = (text) => {
   return decrypted.toString();
 };
 
-exports.getListingsController = (req, res, next) => {
+exports.getListingsController = async (req, res, next) => {
   try {
     const {userId} = req.params;
     if (!userId) {
       req.error = {
         status: 400,
         message: responseMessages[400],
-        logger: 'uesrId missing',
+        logger: 'userId missing',
       };
       return next(new Error());
     }
-    if (!(
-      fs.existsSync(path.join(__dirname, '../../../feeds')) &&
-      fs.existsSync(path.join(__dirname, `../../../feeds/${userId}`)) &&
-      fs.existsSync(path.join(__dirname, `../../../feeds/${userId}/feed.xml`))
-    )) {
+    const [userDetails] = await getUserDetails(userId, {xml: 1}, 'userId');
+    if (userDetails.xml.length) {
+      const xmlFeed = await getCloudinaryXml(userDetails.xml[0].shortName);
+      res.set('Content-Type', 'application/rss+xml');
+      res.send(xmlFeed);
+    } else {
       req.error = {
         status: 404,
         message: responseMessages[404],
@@ -36,7 +40,6 @@ exports.getListingsController = (req, res, next) => {
       };
       return next(new Error());
     }
-    res.sendFile(path.join(__dirname, `../../../feeds/${userId}/feed.xml`));
   } catch (e) {
     next(e);
   }
