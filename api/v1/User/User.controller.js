@@ -1,10 +1,11 @@
+const {saveNewTag} = require('../Post/Post.model');
 const {getToken} = require('../../../services/jwt.service');
-const {comparePassword} = require('../../../services/password.service');
-const {getUserDetails} = require('./User.model');
-const {encryptPassword} = require('../../../services/password.service');
+const {comparePassword, encryptPassword} = require('../../../services/password.service');
 const {
   registerNewUser,
   verifyEmail,
+  saveDefaultTags,
+  getUserDetails,
 } = require('./User.model');
 const {responseMessages, logger} = require('../../../config/config');
 exports.registerController = async (req, res, next) => {
@@ -86,7 +87,7 @@ exports.signInUserController = async (req, res, next) => {
       };
       return next(new Error());
     }
-    const userDetails = await getUserDetails(email, {email: 1, password: 1, name: 1, userId: 1});
+    const [userDetails] = await getUserDetails(email, {email: 1, password: 1, name: 1, userId: 1, defaultTags: 1});
     if (!userDetails) {
       req.error = {
         status: 404,
@@ -104,6 +105,7 @@ exports.signInUserController = async (req, res, next) => {
             email: userDetails.email,
             token: getToken({email: userDetails.email}),
             userId: userDetails.userId,
+            defaultTags: userDetails.defaultTags.map(({tag,tagId}) => ({tag, tagId})),
           },
         },
       );
@@ -114,6 +116,49 @@ exports.signInUserController = async (req, res, next) => {
       };
       return next(new Error());
     }
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.saveDefaultTagsController = async (req, res, next) => {
+  try {
+    const {
+      email: userEmail,
+    } = req.user;
+
+    let {tags} = req.body;
+
+    if (!Array.isArray(tags) && !tags.length) {
+      req.error = {
+        status: 400,
+        message: responseMessages[400],
+        logger: 'Tags not defined or not an Array',
+      };
+    }
+
+    tags = await Promise.all(
+      tags.map(async tag => {
+        if (tag.isNew || !tag.tagId) {
+          let tagDetails;
+          tagDetails = await saveNewTag({tag: tag.tag});
+          return tagDetails.tagId;
+        } else {
+          return tag.tagId;
+        }
+      }),
+    );
+
+    await saveDefaultTags(userEmail, tags);
+    const [{defaultTags}] = await getUserDetails(userEmail, {defaultTags: 1});
+    res.status(200).json({
+      status: 200,
+      message: responseMessages[200],
+      data: {
+        tags: defaultTags.map(({tag,tagId}) => ({tag, tagId})),
+      },
+    });
+    logger.info(`[User.controller.js] Updated Default Tags saved.`);
   } catch (e) {
     next(e);
   }
