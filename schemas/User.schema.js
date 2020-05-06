@@ -24,8 +24,12 @@ module.exports = Mongoose.Schema(
     xmlId: {
       type: Mongoose.Types.ObjectId,
       unique: true,
-      default: null
-    }
+      default: null,
+    },
+    defaultTags: {
+      type: [Mongoose.Types.ObjectId],
+      default: [],
+    },
   },
   {
     timestamps: {
