@@ -32,12 +32,16 @@ exports.getUserDetails = (match, projection, matchField = 'email') => {
   if (matchField === 'userId') {
     matchObject.userId = new mongoose.Types.ObjectId(match);
   }
-  if (projection && projection.xml) {
-    console.log('matchObject', matchObject);
-    return User.aggregate()
-      .match({...matchObject})
-      .lookup({from: 'rsses', localField: 'xmlId', foreignField: 'resourceId', as: 'xml'})
-      .project({_id: 0, ...projection});
+  if (projection && (projection.xml || projection.defaultTags)) {
+    const aggregate = User.aggregate().match({...matchObject});
+    if (projection.xml) {
+      aggregate.lookup({from: 'rsses', localField: 'xmlId', foreignField: 'resourceId', as: 'xml'});
+    }
+    if (projection.defaultTags) {
+      console.log('in');
+      aggregate.lookup({from: 'tags', localField: 'defaultTags', foreignField: 'tagId', as: 'defaultTags'});
+    }
+    return aggregate.project({_id: 0, ...projection});
   } else {
     return User.findOne(
       {
@@ -65,7 +69,7 @@ exports.updateXmlId = (match, xmlId, matchField = 'email') => {
       ...matchObject,
     },
     {
-      xmlId
+      xmlId,
     },
     {
       new: true,
@@ -73,3 +77,17 @@ exports.updateXmlId = (match, xmlId, matchField = 'email') => {
     },
   );
 };
+
+exports.saveDefaultTags = (userEmail, tags) =>
+  User.findOneAndUpdate(
+    {
+      email: userEmail,
+    },
+    {
+      defaultTags: tags,
+    },
+    {
+      new: true,
+      useFindAndModify: false,
+    },
+  );
