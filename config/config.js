@@ -38,5 +38,6 @@ module.exports = {
     secureDeliveryURL: 'https://res.cloudinary.com/harshdeep-singh/raw/upload/',
     apiURL: 'https://api.cloudinary.com/v1_1/harshdeep-singh/',
     uploadPreset: `pixeliano_preset_${process.env.MODE}`
-  }
+  },
+  isRSSActive: false
 };

@@ -9,7 +9,7 @@ const {
   deletePost,
   getPostsCount,
 } = require('./Post.model');
-const {logger} = require('../../../config/config');
+const {logger, isRSSActive} = require('../../../config/config');
 const childProcess = require('child_process');
 const path = require('path');
 const {deleteFromCloudinary} = require('../../../services/cloudinary.service');
@@ -65,12 +65,14 @@ exports.newPostController = async (req, res, next) => {
       pictureId,
       userEmail,
     });
-    childProcess.fork(
-      path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
-      [
-        req.user.userId,
-        newPost.postId,
-      ]);
+    if (isRSSActive) {
+      childProcess.fork(
+        path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
+        [
+          req.user.userId,
+          newPost.postId,
+        ]);
+    }
     res.status(200).json({
       status: 200,
       message: responseMessages[200],
@@ -227,23 +229,25 @@ exports.updateRecordController = async (req, res, next) => {
         update.pictureId = picture.pictureId;
       }*/
       await updatePost(updates, postId);
-      childProcess.fork(
-        path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
-        [
-          req.user.userId,
-          postId,
-        ]);
+      if (isRSSActive) {
+        childProcess.fork(
+          path.join(__dirname, '../../../services/insertIntoFeed.service.js'),
+          [
+            req.user.userId,
+            postId,
+          ]);
+      }
       res.status(200).json({
         status: 200,
         message: responseMessages[200],
       });
-    }else {
+    } else {
       res.error = {
         status: 404,
         message: responseMessages[404],
-        logger: "No post with given postId."
-      }
-      return next (new Error());
+        logger: 'No post with given postId.',
+      };
+      return next(new Error());
     }
   } catch (e) {
     next(e);
@@ -267,12 +271,14 @@ exports.deleteRecordController = async (req, res, next) => {
       status: 200,
       message: responseMessages[200],
     });
-    childProcess.fork(
-      path.join(__dirname, '../../../services/deleteFromFeed.service.js'),
-      [
-        userId,
-        postId,
-      ]);
+    if (isRSSActive) {
+      childProcess.fork(
+        path.join(__dirname, '../../../services/deleteFromFeed.service.js'),
+        [
+          userId,
+          postId,
+        ]);
+    }
   } catch (e) {
     next(e);
   }
