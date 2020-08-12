@@ -8,6 +8,10 @@ module.exports = Mongoose.Schema(
       index: true,
       unique: true,
     },
+    userEmail: {
+      type: String,
+      required: true,
+    },
     tag: {
       type: String,
       required: true,
