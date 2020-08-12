@@ -2,11 +2,9 @@ const express = require('express');
 const {
   newPostController,
   getPostsController,
-  getTagsController,
-  saveNewTagsController,
   updateRecordController,
   deleteRecordController,
-  getPostCountController
+  getPostCountController,
 } = require('./Post.controller');
 
 const app = express.Router();
@@ -20,9 +18,5 @@ app.delete('/record/:postId', deleteRecordController);
 app.get('/getAllPosts', getPostsController);
 
 app.get('/getPostCount', getPostCountController);
-
-app.get('/getTags', getTagsController);
-
-app.post('/saveTags', saveNewTagsController);
 
 module.exports = app;

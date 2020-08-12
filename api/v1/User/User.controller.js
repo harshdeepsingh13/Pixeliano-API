@@ -1,4 +1,4 @@
-const {saveNewTag} = require('../Post/Post.model');
+const {saveNewTag} = require('../Tag/Tag.model');
 const {getToken} = require('../../../services/jwt.service');
 const {comparePassword, encryptPassword} = require('../../../services/password.service');
 const {
@@ -141,7 +141,7 @@ exports.saveDefaultTagsController = async (req, res, next) => {
       tags.map(async tag => {
         if (tag.isNew || !tag.tagId) {
           let tagDetails;
-          tagDetails = await saveNewTag({tag: tag.tag});
+          tagDetails = await saveNewTag({tag: tag.tag, userEmail});
           return tagDetails.tagId;
         } else {
           return tag.tagId;

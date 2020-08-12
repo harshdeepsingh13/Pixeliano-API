@@ -10,11 +10,6 @@ exports.saveNewPicture = pictureInfo => {
   return newPicture.save();
 };
 
-exports.saveNewTag = tagInfo => {
-  const newTag = new Tag({...tagInfo, tagId: new mongoose.Types.ObjectId()});
-  return newTag.save();
-};
-
 exports.saveNewPost = postInfo => {
   const newPost = new Post({...postInfo, postId: new mongoose.Types.ObjectId()});
   return newPost.save();
@@ -85,17 +80,6 @@ exports.getPosts = async (match, matchField = 'userEmail', offset = undefined) =
     posts,
   });
 };
-
-exports.getTags = (searchQuery = '', wantExactMatch = false) =>
-  Tag.find(
-    {
-      tag: new RegExp(wantExactMatch ? `^${searchQuery}$` : `^${searchQuery}`, 'i'),
-    },
-    {
-      _id: 0,
-    },
-  ).sort({tag: 1});
-
 
 exports.setPostOnRss = (postId, rss = false) =>
   Post.findOneAndUpdate(
